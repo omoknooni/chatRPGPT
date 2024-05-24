@@ -1,0 +1,14 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2>Game Session: {{ game_session.theme }}</h2>
+  <p>Players:</p>
+  <ul>
+    {% for player in game_session.players.all %}
+      <li>{{ player.username }}</li>
+    {% endfor %}
+  </ul>
+  {% if not game_session.theme %}
+      <a href="{% url 'game:join_session' game_session.id %}">Select Theme</a>
+  {% endif %}
+{% endblock %}

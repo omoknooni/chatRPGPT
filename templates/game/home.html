@@ -1,0 +1,11 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+    <h1>Home</h1>
+    <p>This is the home page of the game.</p>
+    <ul>
+        <li><a href="{% url 'game:create_game_session' %}">Create Game Session</a></li>
+        <li><a href="{% url 'game:join_game_session' %}">Join Game Session</a></li>
+    </ul>
+{% endblock %}
+
