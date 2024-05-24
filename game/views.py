@@ -1,9 +1,10 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import GameSession, Theme
 from .forms import ThemeSelectionForm
 
-import random
+import random, json
 
 def home(request):
     return render(request, 'game/home.html')
@@ -22,10 +23,19 @@ def create_game_session(request):
     return render(request, 'game/create_game_session.html', {'form': form})
 
 @login_required
-def join_game_session(request, session_id):
-    game_session = get_object_or_404(GameSession, id=session_id)
-    game_session.players.add(request.user)
-    return redirect('game:session_detail', id=session_id)
+def join_game_session(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        session_id = data.get('session_id')
+        game_session = get_object_or_404(GameSession, id=session_id)
+        game_session.players.add(request.user)
+        return render(request, 'game/session_detail.html', {'game_session': game_session})
+    elif request.method == 'GET':
+        # 게임 세션 목록 조회, player가 4 이하인 항목만 조회
+        game_sessions = GameSession.objects.filter(players__lte=4)
+        return render(request, 'game/game_session_list.html', {'game_sessions': game_sessions})
+    else:
+        return redirect('game:home')
 
 
 @login_required

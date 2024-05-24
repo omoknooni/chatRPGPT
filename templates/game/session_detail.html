@@ -9,6 +9,6 @@
     {% endfor %}
   </ul>
   {% if not game_session.theme %}
-      <a href="{% url 'game:join_session' game_session.id %}">Select Theme</a>
+      <a href="{% url 'game:join_game_session' game_session.id %}">Select Theme</a>
   {% endif %}
 {% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<h1>Game Sessions</h1>
+<!--game_sessions 값이 없는 경우, table에 데이터가 없다고 출력-->
+{% if not game_sessions %}
+<p>No game sessions available</p>
+{% else %}
+<table>
+    <tr>
+        <th>Game Session</th>
+        <th>Players</th>
+    </tr>
+    {% for game_session in game_sessions %}
+    <tr>
+        <td>{{ game_session.name }}</td>
+        <td>{{ game_session.players.count }} / 4</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+{% endblock %}
+
