@@ -1,14 +1,69 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-  <h2>Game Session: {{ game_session.theme }}</h2>
-  <p>Players:</p>
-  <ul>
-    {% for player in game_session.players.all %}
-      <li>{{ player.username }}</li>
-    {% endfor %}
-  </ul>
-  {% if not game_session.theme %}
-      <a href="{% url 'game:join_game_session' game_session.id %}">Select Theme</a>
-  {% endif %}
+<div class="container mt-5">
+  <div class="row">
+    <!-- Player list section -->
+    <div class="col-md-4">
+      <h4>Players</h4>
+      <ul class="list-group">
+        {% for player in game_session.players.all %}
+        <li class="list-group-item">{{ player.username }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <!-- Chat section -->
+    <div class="col-md-8">
+      <h4>Chat Room</h4>
+      <div class="card">
+        <div class="card-body" id="chat-box" style="height: 400px; overflow-y: scroll; background-color: #f9f9f9;">
+          <!-- Chat messages will be appended here -->
+        </div>
+        <div class="card-footer">
+          <form id="chat-form">
+            <div class="input-group">
+              <input type="text" id="message-input" class="form-control" placeholder="Type a message..." aria-label="Message" aria-describedby="send-button">
+              <button class="btn btn-primary" type="button" id="send-button">Send</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <script>
+        const chatSocket = new WebSocket(
+          'ws://'
+          + window.location.host
+          + '/ws/game/'
+          + '{{ game_session.chat_channel_id }}/'
+        );
+
+        // message parse
+        chatSocket.onmessage = function(event) {
+          const data = JSON.parse(event.data);
+          const message = data.message;
+          const username = data.username;
+          const messageElement = document.createElement('div');
+          messageElement.textContent = `${username}: ${message}`;
+          document.getElementById('chat-box').appendChild(messageElement);
+        };
+
+        // Error or close
+        chatSocket.onerror = function(error) {
+          console.error('WebSocket error:', error);
+        };
+        chatSocket.onclose = function() {
+          console.log('WebSocket connection closed');
+        };
+
+        // Send Message to server
+        document.getElementById('chat-form').addEventListener('submit', function(event) {
+          event.preventDefault();
+          const message = document.getElementById('message-input').value;
+          const username = '{{ user.username }}';
+          chatSocket.send(JSON.stringify({ message: message, username: username }));
+          document.getElementById('message-input').value = '';
+        });
+      </script>
+    </div>
+  </div>
+</div>
 {% endblock %}
