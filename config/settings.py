@@ -34,6 +34,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     # Library
     'channels',
+    'daphne',
 
     'django.contrib.admin',
     'django.contrib.auth',

@@ -7,7 +7,10 @@ from .forms import ThemeSelectionForm
 import random, json, redis
 
 r = redis.Redis(host='localhost', port=6379, db=0)
+s = r.pubsub()
 
+def main(request):
+    return render(request, 'main.html')
 
 def home(request):
     return render(request, 'game/home.html')
@@ -24,10 +27,10 @@ def create_game_session(request):
             game_session.save()
 
             # Redis에 채널 생성
-            r.subscribe(game_session.chat_channel_id)
+            s.subscribe(game_session.chat_channel_id)
 
             # Game Session을 생성 후 이동
-            return redirect('game:session_detail', {'session_id': game_session.id})
+            return render(request, 'game/session_detail.html', {'game_session': game_session})
     else:
         form = ThemeSelectionForm()
     return render(request, 'game/create_game_session.html', {'form': form})
@@ -41,7 +44,7 @@ def join_game_session(request):
         game_session.players.add(request.user)
 
         # Redis 채널에 참가
-        r.subscribe(game_session.chat_channel_id)
+        s.subscribe(game_session.chat_channel_id)
         return render(request, 'game/session_detail.html', {'game_session': game_session})
     elif request.method == 'GET':
         # 게임 세션 목록 조회, player가 4 이하인 항목만 조회

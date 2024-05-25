@@ -26,14 +26,16 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
-        sender = self.scope['user'].username
+        sender = text_data_json['sender']
         timestamp = str(datetime.now())
 
         await self.channel_layer.group_send(
             self.group_name,
             {
                 'type': 'chat_message',
-                'message': message
+                'message': message,
+                'sender': sender,
+                'timestamp': timestamp
             }
         )
 

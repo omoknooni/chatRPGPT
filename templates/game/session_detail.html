@@ -33,7 +33,7 @@
           'ws://'
           + window.location.host
           + '/ws/game/'
-          + '{{ game_session.chat_channel_id }}/'
+          + '{{ game_session.id }}/'
         );
 
         // message parse
@@ -41,8 +41,10 @@
           const data = JSON.parse(event.data);
           const message = data.message;
           const username = data.username;
+          const timestamp = data.timestamp;
+
           const messageElement = document.createElement('div');
-          messageElement.textContent = `${username}: ${message}`;
+          messageElement.textContent = `${username}: ${message} - ${timestamp}`;
           document.getElementById('chat-box').appendChild(messageElement);
         };
 
@@ -59,7 +61,10 @@
           event.preventDefault();
           const message = document.getElementById('message-input').value;
           const username = '{{ user.username }}';
-          chatSocket.send(JSON.stringify({ message: message, username: username }));
+
+          const obj = { message: message, username: username }
+          chatSocket.send(JSON.stringify(obj));
+          console.log('Message sent:', obj);
           document.getElementById('message-input').value = '';
         });
       </script>
